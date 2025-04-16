@@ -2,7 +2,9 @@
   "name": "@./source",
   "version": "0.0.0",
   "license": "MIT",
-  "scripts": {},
+  "scripts": {
+    "dev": "npx nx run-many --target=serve --all"
+  },
   "private": true,
   "dependencies": {
     "axios": "^1.6.0",
@@ -10,10 +12,15 @@
   },
   "devDependencies": {
     "@nx/esbuild": "20.8.0",
+    "@nx/express": "^20.8.0",
     "@nx/jest": "20.8.0",
     "@nx/js": "20.8.0",
     "@nx/node": "20.8.0",
+    "@nx/web": "20.8.0",
+    "@nx/webpack": "20.8.0",
     "@nx/workspace": "20.8.0",
+    "@pmmmwh/react-refresh-webpack-plugin": "^0.5.7",
+    "@svgr/webpack": "^8.0.1",
     "@swc-node/register": "~1.9.1",
     "@swc/core": "~1.5.7",
     "@swc/helpers": "~0.5.11",
@@ -26,10 +33,12 @@
     "jest-environment-node": "^29.7.0",
     "nx": "20.8.0",
     "prettier": "^2.6.2",
+    "react-refresh": "^0.10.0",
     "ts-jest": "^29.1.0",
     "ts-node": "10.9.1",
     "tslib": "^2.3.0",
-    "typescript": "~5.7.2"
+    "typescript": "~5.7.2",
+    "webpack-cli": "^5.1.4"
   },
   "workspaces": [
     "apps/*"

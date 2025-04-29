@@ -1,0 +1,240 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Velveta Your Activation Email</title>
+    <style>
+      body {
+        margin: 0;
+        padding: 0;
+        min-width: 100%;
+        font-family: "Montserrat", "Helvetica Neue", Arial, sans-serif;
+        font-size: 16px;
+        line-height: 1.6;
+        background-color: #f8f7fc;
+        color: #333333;
+      }
+      a {
+        color: #7c4dff;
+        text-decoration: none;
+      }
+      h1,
+      h2 {
+        margin: 0;
+        font-family: "Playfair Display", Georgia, serif;
+      }
+      h1 {
+        font-size: 32px;
+        font-weight: 700;
+        color: #ffffff;
+        text-align: center;
+        letter-spacing: -0.5px;
+      }
+      h2 {
+        font-size: 32px;
+        font-weight: bold;
+        color: #7c4dff;
+        text-align: center;
+        margin: 12px 0;
+        letter-spacing: 1px;
+      }
+      p {
+        margin: 16px 0;
+        line-height: 1.7;
+        color: #4a4a4a;
+      }
+      .email-wrapper {
+        max-width: 600px;
+        margin: 20px auto;
+        background-color: #ffffff;
+        border-radius: 16px;
+        overflow: hidden;
+        box-shadow: 0 10px 30px rgba(124, 77, 255, 0.15);
+      }
+      .email-header {
+        background: linear-gradient(135deg, #7c4dff, #9d6fff);
+        padding: 40px 20px 60px;
+        position: relative;
+        text-align: center;
+      }
+      .logo-container {
+        margin-bottom: 25px;
+      }
+      .header-pattern {
+        position: absolute;
+        bottom: 0;
+        left: 0;
+        width: 100%;
+        height: 40px;
+        background-image: url("data:image/svg+xml,%3Csvg width='100' height='20' viewBox='0 0 100 20' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M21.184 20c... (shortened)");
+        opacity: 0.6;
+      }
+      .email-body {
+        padding: 40px 30px;
+        position: relative;
+      }
+      .welcome-message {
+        text-align: center;
+        margin-bottom: 30px;
+      }
+      .welcome-badge {
+        display: inline-block;
+        background-color: #f5f1ff;
+        color: #7c4dff;
+        font-size: 12px;
+        font-weight: 600;
+        text-transform: uppercase;
+        letter-spacing: 1.5px;
+        padding: 8px 16px;
+        border-radius: 50px;
+        margin-bottom: 15px;
+      }
+      .activation-container {
+        background-color: #f9f7ff;
+        border: 1px solid #efe8ff;
+        border-radius: 12px;
+        padding: 30px;
+        margin: 30px 0;
+        text-align: center;
+        position: relative;
+      }
+      .activation-container:before {
+        content: "";
+        position: absolute;
+        top: -10px;
+        left: -10px;
+        right: -10px;
+        bottom: -10px;
+        background: linear-gradient(135deg, #7c4dff, #9d6fff);
+        border-radius: 16px;
+        z-index: -1;
+        opacity: 0.1;
+      }
+      .activation-label {
+        font-size: 14px;
+        color: #7a7a7a;
+        margin-bottom: 10px;
+        text-transform: uppercase;
+        letter-spacing: 1px;
+      }
+      .activation-code {
+        font-family: "Courier New", monospace;
+        background-color: #ffffff;
+        border: 2px dashed #7c4dff;
+        border-radius: 8px;
+        padding: 15px 25px;
+        font-size: 28px;
+        font-weight: bold;
+        letter-spacing: 5px;
+        color: #7c4dff;
+        display: inline-block;
+        margin: 10px 0;
+        box-shadow: 0 4px 15px rgba(124, 77, 255, 0.1);
+      }
+      .timer-container {
+        text-align: center;
+        margin: 20px 0;
+      }
+      .timer {
+        display: inline-block;
+        background-color: #ffffff;
+        border-radius: 50px;
+        padding: 8px 16px;
+        font-size: 14px;
+        color: #7c4dff;
+        box-shadow: 0 2px 8px rgba(124, 77, 255, 0.1);
+      }
+      .divider {
+        height: 1px;
+        background: linear-gradient(
+          to right,
+          transparent,
+          #efe8ff,
+          transparent
+        );
+        margin: 40px 0;
+      }
+      .email-footer {
+        background-color: #f5f1ff;
+        padding: 40px 20px;
+        text-align: center;
+        font-size: 14px;
+        color: #777;
+        position: relative;
+      }
+      .footer-pattern {
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 6px;
+        background: linear-gradient(90deg, #7c4dff, #9d6fff, #7c4dff);
+      }
+      @media only screen and (max-width: 480px) {
+        .email-wrapper {
+          margin: 10px;
+          border-radius: 10px;
+        }
+        .email-body {
+          padding: 25px 15px;
+        }
+        h1 {
+          font-size: 26px;
+        }
+        h2 {
+          font-size: 24px;
+        }
+        .activation-code {
+          font-size: 22px;
+          letter-spacing: 3px;
+          padding: 10px 15px;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <div class="email-wrapper">
+      <div class="email-header">
+        <div class="logo-container">
+          <!-- Logo goes here if needed -->
+        </div>
+        <h1>Welcome to Velveta!</h1>
+        <div class="header-pattern"></div>
+      </div>
+
+      <div class="email-body">
+        <div class="welcome-message">
+          <div class="welcome-badge">New Member</div>
+          <p>Hi <strong><%= name %></strong>,</p>
+          <p>
+            Thank you for joining us! Here’s your activation code to get
+            started:
+          </p>
+        </div>
+
+        <div class="activation-container">
+          <div class="activation-label">Your Activation Code</div>
+          <div class="activation-code"><%= otp %></div>
+          <div class="timer-container">
+            <div class="timer">⏳ Valid for 5 minutes</div>
+          </div>
+          <p style="font-size: 14px; margin-top: 15px">
+            Use this code to complete your activation.
+          </p>
+        </div>
+
+        <div class="divider"></div>
+
+        <p style="font-size: 14px; text-align: center">
+          If you did not sign up, you can ignore this email.
+        </p>
+      </div>
+
+      <div class="email-footer">
+        <div class="footer-pattern"></div>
+        <p>© 2025 Velveta. All rights reserved.</p>
+      </div>
+    </div>
+  </body>
+</html>

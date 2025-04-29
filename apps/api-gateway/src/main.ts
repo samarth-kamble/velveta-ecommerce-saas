@@ -4,7 +4,6 @@ import proxy from "express-http-proxy";
 import morgan from "morgan";
 import cookieParser from "cookie-parser";
 import rateLimit from "express-rate-limit";
-import { errorMiddleware } from "../../../packages/error-handler/ErrorMiddleware";
 
 const app = express();
 
@@ -53,8 +52,6 @@ app.use(cookieParser());
 app.get("/api", (req, res) => {
   res.send({ message: "Welcome to api-gateway!" });
 });
-
-app.use(errorMiddleware);
 
 app.use("/", proxy("http://localhost:6001"));
 

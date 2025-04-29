@@ -2,9 +2,9 @@ import express from "express";
 import cors from "cors";
 import proxy from "express-http-proxy";
 import morgan from "morgan";
-import axios from "axios";
 import cookieParser from "cookie-parser";
 import rateLimit from "express-rate-limit";
+import { errorMiddleware } from "../../../packages/error-handler/ErrorMiddleware";
 
 const app = express();
 
@@ -47,9 +47,14 @@ const limiter = rateLimit({
 
 app.use(limiter);
 
+app.use(express.json());
+app.use(cookieParser());
+
 app.get("/api", (req, res) => {
   res.send({ message: "Welcome to api-gateway!" });
 });
+
+app.use(errorMiddleware);
 
 app.use("/", proxy("http://localhost:6001"));
 

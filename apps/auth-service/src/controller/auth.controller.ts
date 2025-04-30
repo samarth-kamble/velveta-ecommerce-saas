@@ -7,8 +7,10 @@ import {
   verifyOtp,
 } from "../utils/auth.helper";
 import prisma from "@packages/libs/prisma";
-import { ValidationError } from "@packages/error-handler/AppError";
+import { AuthError, ValidationError } from "@packages/error-handler/AppError";
 import bcrypt from "bcryptjs";
+import jwt from "jsonwebtoken";
+import { setCookie } from "../utils/cookie";
 
 // Register a new user
 export const userRegistration = async (
@@ -76,6 +78,68 @@ export const verifyUser = async (
     res.status(201).json({
       success: true,
       message: "User registered successfully",
+    });
+  } catch (error) {
+    return next(error);
+  }
+};
+
+// Login User
+export const loginUser = async (
+  req: Request,
+  res: Response,
+  next: NextFunction
+) => {
+  try {
+    const { email, password } = req.body;
+
+    if (!email || !password) {
+      return next(new ValidationError("Email and Password are required!"));
+    }
+
+    const user = await prisma.users.findUnique({
+      where: { email },
+    });
+
+    if (!user) {
+      return next(new AuthError("User not found with this email"));
+    }
+
+    // verfiy password
+    const isMatch = await bcrypt.compare(password, user.password!);
+    if (!isMatch) {
+      return next(new AuthError("Invalid email and password"));
+    }
+
+    // Generate JWT token
+    const accessToken = jwt.sign(
+      { id: user.id, role: "user" },
+      process.env.ACCESS_TOKEN_SECRET as string,
+      {
+        expiresIn: "15m",
+      }
+    );
+
+    const refreshToken = jwt.sign(
+      { id: user.id, role: "user" },
+      process.env.REFRESH_TOKEN_SECRET as string,
+      {
+        expiresIn: "7d",
+      }
+    );
+
+    // Store refresh token in HTTPOnly cookie
+    setCookie(res, "refresh_token", refreshToken);
+    setCookie(res, "access_token", accessToken);
+
+    res.status(200).json({
+      success: true,
+      message: "User logged in successfully",
+      user: {
+        id: user.id,
+        email: user.email,
+        name: user.name,
+      },
     });
   } catch (error) {
     return next(error);

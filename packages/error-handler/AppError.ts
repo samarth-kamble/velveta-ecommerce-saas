@@ -58,3 +58,10 @@ export class RateLimitError extends AppError {
     super(message, 429);
   }
 }
+
+// Auth Error
+export class AuthError extends AppError {
+  constructor(message = "Invalid credentials") {
+    super(message, 401);
+  }
+}

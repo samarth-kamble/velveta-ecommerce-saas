@@ -45,3 +45,7 @@ test-output
 
 
 .env
+
+# Next.js
+.next
+out

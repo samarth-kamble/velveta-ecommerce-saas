@@ -1,5 +1,4 @@
-import "./global.css";
-
+import "./globals.css";
 import { Poppins, Roboto } from "next/font/google";
 
 export const metadata = {

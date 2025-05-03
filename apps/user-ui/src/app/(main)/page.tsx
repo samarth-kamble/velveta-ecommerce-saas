@@ -1,7 +1,7 @@
 import React from "react";
 
 const RootPage = () => {
-  return <div className="h-[200vh]">RootPage</div>;
+  return <div>RootPage</div>;
 };
 
 export default RootPage;

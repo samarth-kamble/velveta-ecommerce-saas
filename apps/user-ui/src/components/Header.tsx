@@ -4,8 +4,10 @@ import Link from "next/link";
 import { HeartIcon, Search, ShoppingBag, User, X } from "lucide-react";
 import { useState } from "react";
 import HeaderBottom from "./HeaderBottom";
+import useUser from "@/hooks/useUser";
 
 const Header = () => {
+  const { user, isLoading } = useUser();
   const [searchQuery, setSearchQuery] = useState("");
   const [mobileSearchOpen, setMobileSearchOpen] = useState(false);
 
@@ -38,16 +40,35 @@ const Header = () => {
         <div className="hidden lg:flex items-center gap-5">
           {/* Account */}
           <div className="flex items-center gap-2">
-            <Link
-              href="/login"
-              className="w-[42px] h-[42px] flex items-center justify-center border border-gray-300 rounded-full"
-            >
-              <User size={20} />
-            </Link>
-            <div className="leading-tight text-sm">
-              <span className="block text-gray-500">Hello,</span>
-              <span className="font-semibold text-gray-800">Sign In</span>
-            </div>
+            {!isLoading && user ? (
+              <>
+                <Link
+                  href="/profile"
+                  className="w-[42px] h-[42px] flex items-center justify-center border border-gray-300 rounded-full"
+                >
+                  <User size={20} />
+                </Link>
+                <div className="leading-tight text-sm">
+                  <span className="block text-gray-500">Hello,</span>
+                  <span className="font-semibold text-gray-800">
+                    {user?.name}
+                  </span>
+                </div>
+              </>
+            ) : (
+              <>
+                <Link
+                  href="/login"
+                  className="w-[42px] h-[42px] flex items-center justify-center border border-gray-300 rounded-full"
+                >
+                  <User size={20} />
+                </Link>
+                <div className="leading-tight text-sm">
+                  <span className="block text-gray-500">Hello,</span>
+                  <span className="font-semibold text-gray-800">Sign In</span>
+                </div>
+              </>
+            )}
           </div>
 
           {/* Wishlist */}

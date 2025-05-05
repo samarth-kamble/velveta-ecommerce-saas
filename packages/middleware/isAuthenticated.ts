@@ -1,7 +1,6 @@
 import prisma from "@packages/libs/prisma";
 import { Response, NextFunction } from "express";
 import jwt from "jsonwebtoken";
-import { decode } from "punycode";
 
 const isAuthenticated = async (req: any, res: Response, next: NextFunction) => {
   try {

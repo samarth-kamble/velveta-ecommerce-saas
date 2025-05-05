@@ -148,7 +148,7 @@ export const handleForgotPassword = async (
     await trackOtpRequest(email, next);
 
     // send otp
-    await sendOtp(email, user.name, "forgot-password-user-mail");
+    await sendOtp(user.name, email, "forgot-password-user-mail");
 
     res.status(200).json({
       message: "OTP sent successfully to your email",
@@ -170,6 +170,9 @@ export const verifyForgotPasswordOtp = async (
     }
 
     await verifyOtp(email, otp, next);
+
+    await redis.del(`otp:${email}`);
+    await redis.del(`otp_cooldown:${email}`);
 
     res.status(200).json({
       message: "OTP verified successfully",

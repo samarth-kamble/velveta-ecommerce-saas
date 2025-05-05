@@ -1,10 +1,10 @@
 import { GalleryVerticalEnd } from "lucide-react";
 import Link from "next/link";
 import Image from "next/image";
-import SignupImage from "@/assets/sign-up.jpg";
-import { SignUpForm } from "../_components/SignupForm";
+import ForgotPassword from "@/assets/ForgotPassword.jpg";
+import { ForgotPasswordForm } from "../_components/ForgotPasswordForm";
 
-const SignupPage = () => {
+const ForgotPasswordPage = () => {
   return (
     <div className="grid min-h-svh lg:grid-cols-2">
       <div className="flex flex-col gap-4 p-6 md:p-10">
@@ -18,14 +18,14 @@ const SignupPage = () => {
         </div>
         <div className="flex flex-1 items-center justify-center">
           <div className="w-full max-w-xs">
-            <SignUpForm />
+            <ForgotPasswordForm />
           </div>
         </div>
       </div>
       <div className="relative hidden bg-muted lg:block">
-        <Image src={SignupImage} alt="Image" className="w-full h-full" />
+        <Image src={ForgotPassword} alt="Image" className="w-full h-full" />
       </div>
     </div>
   );
 };
-export default SignupPage;
+export default ForgotPasswordPage;

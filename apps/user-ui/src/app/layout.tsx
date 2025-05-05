@@ -1,7 +1,7 @@
 import Providers from "@/components/providers/Providers";
 import "./globals.css";
 import { Poppins, Roboto } from "next/font/google";
-
+import { Toaster } from "sonner";
 export const metadata = {
   title: "Velveta - Welcome to Velveta",
   description:
@@ -28,7 +28,10 @@ export default function RootLayout({
   return (
     <html lang="en">
       <body className={`${roboto.variable} ${poppins.variable}`}>
-        <Providers>{children}</Providers>
+        <Providers>
+          <Toaster richColors position="bottom-left" />
+          {children}
+        </Providers>
       </body>
     </html>
   );

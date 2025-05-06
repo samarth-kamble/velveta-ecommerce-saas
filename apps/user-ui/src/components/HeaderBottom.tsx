@@ -19,13 +19,14 @@ import {
   SheetTitle,
   SheetTrigger,
 } from "@/components/ui/sheet";
+import useUser from "@/hooks/useUser";
 
 const HeaderBottom = () => {
+  const { user } = useUser();
   const [showCategories, setShowCategories] = useState(false);
   const [isSticky, setIsSticky] = useState(false);
   const dropdownRef = useRef<HTMLDivElement>(null);
 
-  // Close category dropdown on outside click
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
       if (
@@ -39,7 +40,6 @@ const HeaderBottom = () => {
     return () => document.removeEventListener("mousedown", handleClickOutside);
   }, []);
 
-  // Sticky header on scroll
   useEffect(() => {
     const handleScroll = () => setIsSticky(window.scrollY > 80);
     window.addEventListener("scroll", handleScroll);
@@ -107,30 +107,6 @@ const HeaderBottom = () => {
           ))}
         </div>
 
-        {/* Sticky Desktop Icons */}
-        {isSticky && (
-          <div className="hidden md:flex items-center gap-4">
-            <Link
-              href="/login"
-              className="w-10 h-10 flex items-center justify-center rounded-full border border-gray-300 hover:border-rose-500 transition"
-            >
-              <User size={20} />
-            </Link>
-            <Link href="/whislist" className="relative">
-              <HeartIcon />
-              <span className="absolute -top-2 -right-2 w-5 h-5 flex items-center justify-center bg-rose-500 text-white text-xs rounded-full border-2 border-white">
-                0
-              </span>
-            </Link>
-            <Link href="/cart" className="relative">
-              <ShoppingBag />
-              <span className="absolute -top-2 -right-2 w-5 h-5 flex items-center justify-center bg-rose-500 text-white text-xs rounded-full border-2 border-white">
-                0
-              </span>
-            </Link>
-          </div>
-        )}
-
         {/* Mobile Menu with Sheet */}
         <div className="md:hidden">
           <Sheet>
@@ -141,58 +117,80 @@ const HeaderBottom = () => {
             </SheetTrigger>
             <SheetContent
               side="left"
-              className="w-64 bg-white p-4 border-r border-gray-200 shadow-lg"
+              className="w-64 bg-white p-4 border-r border-gray-200 shadow-lg flex flex-col justify-between"
             >
-              <SheetHeader>
-                <SheetTitle className="text-lg font-semibold text-rose-500 mb-4">
+              <div>
+                <SheetHeader>
+                  <SheetTitle className="text-lg font-semibold text-rose-500 mb-4">
+                    Menu
+                  </SheetTitle>
+                </SheetHeader>
+
+                {/* Department Links */}
+                <SheetTitle className="text-sm font-semibold text-rose-500 mb-2">
                   All Departments
                 </SheetTitle>
-              </SheetHeader>
 
-              <ul className="space-y-2 mb-6">
-                {categories.map((cat, index) => (
-                  <li key={index}>
+                <ul className="space-y-2 mb-6">
+                  {categories.map((cat, index) => (
+                    <li key={index}>
+                      <Link
+                        href={`/category/${cat.toLowerCase()}`}
+                        className="block text-sm text-gray-700 hover:text-rose-500"
+                      >
+                        {cat}
+                      </Link>
+                    </li>
+                  ))}
+                </ul>
+
+                {/* Navigation Links */}
+                <div className="border-t border-gray-200 pt-4 space-y-3">
+                  {navItems.map((item, index) => (
                     <Link
-                      href={`/category/${cat.toLowerCase()}`}
+                      key={index}
+                      href={item.href}
                       className="block text-sm text-gray-700 hover:text-rose-500"
                     >
-                      {cat}
+                      {item.title}
                     </Link>
-                  </li>
-                ))}
-              </ul>
-
-              <div className="border-t border-gray-200 pt-4 space-y-3">
-                {navItems.map((item, index) => (
-                  <Link
-                    key={index}
-                    href={item.href}
-                    className="block text-sm text-gray-700 hover:text-rose-500"
-                  >
-                    {item.title}
-                  </Link>
-                ))}
-
-                <div className="flex gap-4 pt-4 items-center">
-                  <Link
-                    href="/login"
-                    className="w-9 h-9 flex items-center justify-center rounded-full border border-gray-300"
-                  >
-                    <User size={20} />
-                  </Link>
-                  <Link href="/whislist" className="relative">
-                    <HeartIcon />
-                    <span className="absolute -top-2 -right-2 w-4 h-4 bg-rose-500 text-white text-xs flex items-center justify-center rounded-full border border-white">
-                      0
-                    </span>
-                  </Link>
-                  <Link href="/cart" className="relative">
-                    <ShoppingBag />
-                    <span className="absolute -top-2 -right-2 w-4 h-4 bg-rose-500 text-white text-xs flex items-center justify-center rounded-full border border-white">
-                      0
-                    </span>
-                  </Link>
+                  ))}
                 </div>
+              </div>
+
+              {/* Bottom Icons with Labels */}
+              <div className="pt-6 mt-6 border-t border-gray-200 flex flex-col gap-5">
+                <Link
+                  href={user ? "/profile" : "/login"}
+                  className="flex items-center gap-3 text-gray-700 hover:text-rose-500"
+                >
+                  <User size={20} />
+                  <span className="text-sm font-medium">
+                    {user ? user.name : "Login"}
+                  </span>
+                </Link>
+
+                <Link
+                  href="/whislist"
+                  className="flex items-center gap-3 relative text-gray-700 hover:text-rose-500"
+                >
+                  <HeartIcon size={20} />
+                  <span className="text-sm font-medium">Wishlist</span>
+                  <span className="absolute left-5 top-[-6px] w-4 h-4 bg-rose-500 text-white text-xs flex items-center justify-center rounded-full border border-white">
+                    0
+                  </span>
+                </Link>
+
+                <Link
+                  href="/cart"
+                  className="flex items-center gap-3 relative text-gray-700 hover:text-rose-500"
+                >
+                  <ShoppingBag size={20} />
+                  <span className="text-sm font-medium">Cart</span>
+                  <span className="absolute left-5 top-[-6px] w-4 h-4 bg-rose-500 text-white text-xs flex items-center justify-center rounded-full border border-white">
+                    0
+                  </span>
+                </Link>
               </div>
             </SheetContent>
           </Sheet>

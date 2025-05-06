@@ -5,7 +5,8 @@
   "scripts": {
     "dev": "pnpm dlx nx run-many --target=serve --all",
     "auth-docs": "node apps/auth-service/src/swagger.js",
-    "user-ui": "pnpm dlx nx run-many --target=dev --all --projects=user-ui"
+    "user-ui": "pnpm dlx nx run-many --target=dev --all --projects=user-ui",
+    "seller-ui": "pnpm dlx nx run-many --target=dev --all --projects=seller-ui"
   },
   "private": true,
   "dependencies": {
@@ -82,7 +83,7 @@
     "postcss": "8.4.38",
     "prisma": "6.7.0",
     "react-refresh": "^0.10.0",
-    "tailwindcss": "3.4.1",
+    "tailwindcss": "3.4.3",
     "ts-jest": "^29.1.0",
     "ts-node": "10.9.1",
     "tslib": "^2.3.0",

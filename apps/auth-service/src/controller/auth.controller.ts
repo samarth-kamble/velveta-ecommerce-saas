@@ -278,3 +278,17 @@ export const resetUserPassword = async (
     next(error);
   }
 };
+
+// Seller Registration
+export const registerSeller = async (
+  req: Request,
+  res: Response,
+  next: NextFunction
+) => {
+  try {
+    validateRegistrationData(req.body, "seller");
+    const { name, email } = req.body;
+  } catch (error) {
+    next(error);
+  }
+};

@@ -17,3 +17,23 @@ export const countries = [
   { code: "PK", name: "Pakistan" },
   { code: "BD", name: "Bangladesh" },
 ];
+
+// Shop categories array with value and label properties
+export const shopCategories = [
+  { value: "electronics", label: "Electronics & Gadgets" },
+  { value: "fashion", label: "Fashion & Apparel" },
+  { value: "beauty", label: "Beauty & Personal Care" },
+  { value: "home", label: "Home & Kitchen" },
+  { value: "grocery", label: "Grocery & Essentials" },
+  { value: "sports", label: "Sports & Outdoors" },
+  { value: "health", label: "Health & Wellness" },
+  { value: "toys", label: "Toys & Games" },
+  { value: "jewelry", label: "Jewelry & Accessories" },
+  { value: "books", label: "Books & Stationery" },
+  { value: "automotive", label: "Automotive & Tools" },
+  { value: "pet", label: "Pet Supplies" },
+  { value: "baby", label: "Baby & Kids Products" },
+  { value: "furniture", label: "Furniture & Decor" },
+  { value: "digital", label: "Digital Products" },
+  { value: "handmade", label: "Handmade & Crafts" },
+];

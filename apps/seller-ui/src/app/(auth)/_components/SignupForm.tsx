@@ -9,17 +9,13 @@ import {
   User,
   Mail,
   Lock,
-  Store,
-  Tag,
-  FileText,
   CreditCard,
   Building,
   Hash,
-  ArrowLeft,
-  ArrowRight,
   CheckCircle2,
   Phone,
 } from "lucide-react";
+import { ShopSetupForm } from "./ShopSetupForm";
 import { motion } from "framer-motion";
 import { useMutation } from "@tanstack/react-query";
 import axios from "axios";
@@ -39,18 +35,7 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { countries } from "@/constant";
-
-interface FormData {
-  name: string;
-  email: string;
-  password: string;
-  shopName: string;
-  shopType: string;
-  description: string;
-  bank: string;
-  account: string;
-  ifsc: string;
-}
+import { toast } from "sonner";
 
 const steps = ["Create an Account", "Setup Shop", "Connect Bank"];
 
@@ -77,7 +62,8 @@ const SellerForm = () => {
   const [timer, setTimer] = useState(60);
   const [canResend, setCanResend] = useState(true);
   const [otp, setOtp] = useState(["", "", "", ""]);
-  const [userData, setUserData] = useState<FormData | null>(null);
+  const [sellerData, setSellerData] = useState<FormData | null>(null);
+  const [sellerId, setSellerId] = useState<string | null>(null);
 
   const inputRefs = useRef<(HTMLInputElement | null)[]>([]);
 
@@ -91,37 +77,64 @@ const SellerForm = () => {
   const signupMutation = useMutation({
     mutationFn: async (data: any) => {
       const response = await axios.post(
-        `${process.env.NEXT_PUBLIC_SERVER_URI}/api/user-registration`,
+        `${process.env.NEXT_PUBLIC_SERVER_URI}/api/seller-registration`,
         data
       );
       return response.data;
     },
-    onSuccess: (_, formData) => {
-      setUserData(formData);
+    onSuccess: (data, formData) => {
+      setSellerData(formData);
+      setSellerId(data?.seller?.id);
       setShowOtpDialog(true);
       setCanResend(false);
       setTimer(60);
+      toast.success("OTP sent successfully");
+    },
+    onError: (error) => {
+      toast.error("Signup failed");
     },
   });
 
   const verifyOtpMutation = useMutation({
     mutationFn: async () => {
-      if (!userData) return;
+      if (!sellerData) return;
       const response = await axios.post(
-        `${process.env.NEXT_PUBLIC_SERVER_URI}/api/verify-user`,
+        `${process.env.NEXT_PUBLIC_SERVER_URI}/api/verify-seller`,
         {
-          ...userData,
+          ...sellerData,
           otp: otp.join(""),
         }
       );
       return response.data;
     },
-    onSuccess: () => {
-      // after success, close dialog and move to shop step
-      setShowOtpDialog(false);
-      setStep(2);
+    onSuccess: (data) => {
+      // Make sure to access the seller ID correctly from your API response
+      const id = data.seller?.id || data.id; // Adjust based on your actual API response
+      if (id) {
+        setSellerId(id);
+        setShowOtpDialog(false);
+        setStep(2);
+      }
+      toast.success("OTP verified successfully");
+    },
+    onError: (error) => {
+      toast.error("OTP verification failed");
     },
   });
+
+  const connectStripe = async () => {
+    try {
+      const response = await axios.post(
+        `${process.env.NEXT_PUBLIC_SERVER_URI}/api/create-stripe-link`,
+        { sellerId }
+      );
+      if (response.data.url) {
+        window.location.href = response.data.url;
+      }
+    } catch (error) {
+      toast.error("Failed to connect with Stripe");
+    }
+  };
 
   // countdown effect
   useEffect(() => {
@@ -137,19 +150,10 @@ const SellerForm = () => {
   }, [showOtpDialog, timer]);
 
   const resendOtp = () => {
-    if (userData) {
-      signupMutation.mutate(userData);
+    if (sellerData) {
+      signupMutation.mutate(sellerData);
       setCanResend(false);
       setTimer(60);
-    }
-  };
-
-  const nextHandler = () => {
-    if (step === 1) {
-      // trigger signup & OTP
-      handleSubmit((data) => signupMutation.mutate(data))();
-    } else {
-      setStep((prev) => Math.min(prev + 1, 3));
     }
   };
 
@@ -323,117 +327,32 @@ const SellerForm = () => {
                     Password must be at least 8 characters long
                   </p>
                 </div>
+
+                {/* Create Account Button */}
+                <Button
+                  onClick={handleSubmit((data) => signupMutation.mutate(data))}
+                  disabled={signupMutation.isPending}
+                  className="w-full mt-4 bg-rose-600 hover:bg-rose-700"
+                >
+                  {signupMutation.isPending
+                    ? "Creating Account..."
+                    : "Create Account"}
+                </Button>
               </div>
             )}
 
-            {step === 2 && (
-              <div className="space-y-5">
-                <div className="space-y-2">
-                  <Label htmlFor="shopName" className="text-gray-700">
-                    Shop Name
-                  </Label>
-                  <div className="relative">
-                    <div className="absolute inset-y-0 left-0 flex items-center pl-3 pointer-events-none text-gray-400">
-                      <Store size={18} />
-                    </div>
-                    <Input
-                      id="shopName"
-                      placeholder="Green Roots"
-                      className="pl-10 h-12 border-gray-300"
-                      {...register("shopName", { required: true })}
-                    />
-                  </div>
-                </div>
-
-                <div className="space-y-2">
-                  <Label htmlFor="shopType" className="text-gray-700">
-                    Shop Category
-                  </Label>
-                  <div className="relative">
-                    <div className="absolute inset-y-0 left-0 flex items-center pl-3 pointer-events-none text-gray-400">
-                      <Tag size={18} />
-                    </div>
-                    <Input
-                      id="shopType"
-                      placeholder="Vegetables, Dairy, etc."
-                      className="pl-10 h-12 border-gray-300"
-                      {...register("shopType", { required: true })}
-                    />
-                  </div>
-                </div>
-
-                <div className="space-y-2">
-                  <Label htmlFor="description" className="text-gray-700">
-                    Shop Description
-                  </Label>
-                  <div className="relative">
-                    <div className="absolute inset-y-0 left-0 flex items-center pl-3 pointer-events-none text-gray-400">
-                      <FileText size={18} />
-                    </div>
-                    <Input
-                      id="description"
-                      placeholder="Tell us about your shop"
-                      className="pl-10 h-12 border-gray-300"
-                      {...register("description", { required: true })}
-                    />
-                  </div>
-                </div>
-              </div>
+            {step === 2 && sellerId && (
+              <ShopSetupForm sellerId={sellerId} setStep={setStep} />
             )}
 
-            {step === 3 && (
+            {step === 3 && sellerId && (
               <div className="space-y-5">
-                <div className="space-y-2">
-                  <Label htmlFor="bank" className="text-gray-700">
-                    Bank Name
-                  </Label>
-                  <div className="relative">
-                    <div className="absolute inset-y-0 left-0 flex items-center pl-3 pointer-events-none text-gray-400">
-                      <Building size={18} />
-                    </div>
-                    <Input
-                      id="bank"
-                      placeholder="ICICI Bank"
-                      className="pl-10 h-12 border-gray-300"
-                      {...register("bank", { required: true })}
-                    />
-                  </div>
-                </div>
-
-                <div className="space-y-2">
-                  <Label htmlFor="account" className="text-gray-700">
-                    Account Number
-                  </Label>
-                  <div className="relative">
-                    <div className="absolute inset-y-0 left-0 flex items-center pl-3 pointer-events-none text-gray-400">
-                      <CreditCard size={18} />
-                    </div>
-                    <Input
-                      id="account"
-                      placeholder="1234567890"
-                      className="pl-10 h-12 border-gray-300"
-                      {...register("account", { required: true })}
-                    />
-                  </div>
-                </div>
-
-                <div className="space-y-2">
-                  <Label htmlFor="ifsc" className="text-gray-700">
-                    IFSC Code
-                  </Label>
-                  <div className="relative">
-                    <div className="absolute inset-y-0 left-0 flex items-center pl-3 pointer-events-none text-gray-400">
-                      <Hash size={18} />
-                    </div>
-                    <Input
-                      id="ifsc"
-                      placeholder="ICIC0001234"
-                      className="pl-10 h-12 border-gray-300"
-                      {...register("ifsc", { required: true })}
-                    />
-                  </div>
-                </div>
-
+                <h4 className="text-lg font-bold">Connect with Stripe</h4>
+                <p className="text-sm text-gray-600">
+                  It's quick and easy to connect your Stripe account to your
+                  seller account to start selling products online. And for with
+                  Stripe, you can accept payments from customers.
+                </p>
                 <div className="mt-4 p-4 bg-gray-50 rounded-md border border-gray-200">
                   <p className="text-sm text-gray-600 flex items-start">
                     <svg
@@ -455,50 +374,19 @@ const SellerForm = () => {
                     secure.
                   </p>
                 </div>
+
+                {/* Connect with Stripe Button */}
+                <Button
+                  onClick={connectStripe}
+                  className="w-full mt-4 bg-rose-600 hover:bg-rose-700"
+                >
+                  Connect with Stripe
+                </Button>
               </div>
             )}
           </motion.div>
         </CardContent>
       </Card>
-
-      {/* Navigation & OTP Dialog */}
-      <div className="flex justify-between pt-6">
-        {step > 1 ? (
-          <Button
-            variant="outline"
-            onClick={() => step > 1 && setStep(step - 1)}
-            className="flex items-center gap-2 border-rose-200 text-rose-600 hover:bg-rose-50"
-          >
-            <ArrowLeft size={16} /> Back
-          </Button>
-        ) : (
-          <div />
-        )}
-
-        {step < 3 ? (
-          <Button
-            onClick={nextHandler}
-            disabled={step === 1 && signupMutation.isPending}
-            className="flex items-center gap-2 bg-rose-600 hover:bg-rose-700"
-          >
-            {step === 1
-              ? signupMutation.isPending
-                ? "Submitting..."
-                : "Next"
-              : "Next"}{" "}
-            <ArrowRight size={16} />
-          </Button>
-        ) : (
-          <Button
-            onClick={() => {
-              /* redirect to Stripe OAuth */
-            }}
-            className="bg-rose-600 hover:bg-rose-700"
-          >
-            Connect with Stripe
-          </Button>
-        )}
-      </div>
 
       {/* OTP Verification Dialog */}
       <Dialog open={showOtpDialog} onOpenChange={setShowOtpDialog}>

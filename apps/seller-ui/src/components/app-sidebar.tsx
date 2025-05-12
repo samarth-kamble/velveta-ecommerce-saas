@@ -5,10 +5,15 @@ import {
   LayoutDashboard,
   Package,
   ShoppingCart,
-  BarChart3,
-  Settings,
-  MessageCircle,
   Command,
+  CircleDollarSign,
+  Boxes,
+  Calendar,
+  Mail,
+  Settings,
+  BellRing,
+  CalendarDays,
+  Percent,
 } from "lucide-react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
@@ -24,6 +29,7 @@ import {
   SidebarMenuItem,
 } from "@/components/ui/sidebar";
 import { cn } from "@/lib/utils";
+import useSeller from "@/hooks/useSeller";
 
 export const menuGroups = [
   {
@@ -44,30 +50,71 @@ export const menuGroups = [
         url: "/dashboard/orders",
         icon: ShoppingCart,
       },
+
       {
-        title: "Products",
-        url: "/dashboard/products",
-        icon: Package,
-      },
-      {
-        title: "Inventory",
-        url: "/dashboard/inventory",
-        icon: BarChart3,
+        title: "Payments",
+        url: "/dashboard/payments",
+        icon: CircleDollarSign,
       },
     ],
   },
   {
-    heading: "Support & Settings",
+    heading: "Products",
     items: [
       {
-        title: "Messages",
-        url: "/dashboard/messages",
-        icon: MessageCircle,
+        title: "Create Product",
+        url: "/dashboard/create-product",
+        icon: Package,
+      },
+      {
+        title: "All Products",
+        url: "/dashboard/all-products",
+        icon: Boxes,
+      },
+    ],
+  },
+  {
+    heading: "Events",
+    items: [
+      {
+        title: "Create Event",
+        url: "/dashboard/create-event",
+        icon: Calendar,
+      },
+      {
+        title: "All Events",
+        url: "/dashboard/all-events",
+        icon: CalendarDays,
+      },
+    ],
+  },
+  {
+    heading: "Controllers",
+    items: [
+      {
+        title: "Inbox",
+        url: "/dashboard/inbox",
+        icon: Mail,
       },
       {
         title: "Settings",
         url: "/dashboard/settings",
         icon: Settings,
+      },
+      {
+        title: "Notifications",
+        url: "/dashboard/notifications",
+        icon: BellRing,
+      },
+    ],
+  },
+  {
+    heading: "Extras",
+    items: [
+      {
+        title: "Discount Codes",
+        url: "/dashboard/discount-codes",
+        icon: Percent,
       },
     ],
   },
@@ -75,7 +122,7 @@ export const menuGroups = [
 
 export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
   const pathname = usePathname();
-
+  const { seller } = useSeller();
   return (
     <Sidebar
       variant="inset"
@@ -94,7 +141,7 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
                 <div className="text-left leading-tight">
                   <h1 className="text-xl font-bold tracking-wide">Velveta</h1>
                   <p className="text-sm text-gray-500 dark:text-gray-400">
-                    Seller Panel
+                    {seller?.shop?.name}
                   </p>
                 </div>
               </Link>

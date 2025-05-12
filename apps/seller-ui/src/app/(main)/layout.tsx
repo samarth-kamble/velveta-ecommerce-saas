@@ -2,7 +2,7 @@
 
 import { ReactNode } from "react";
 import { usePathname } from "next/navigation";
-import { AppSidebar, data } from "@/components/app-sidebar";
+import { AppSidebar, menuGroups } from "@/components/app-sidebar";
 import {
   SidebarInset,
   SidebarProvider,
@@ -22,7 +22,12 @@ import {
 
 // Helper function to get breadcrumb title from nav data
 const getBreadcrumbTitle = (path: string) => {
-  const foundItem = data.navMain.find((item) => item.url === path);
+  // Flatten all grouped items into a single array
+  const allItems = menuGroups.flatMap((group) => group.items);
+
+  // Try to find the matching path
+  const foundItem = allItems.find((item) => item.url === path);
+
   return foundItem
     ? foundItem.title
     : path.charAt(0).toUpperCase() + path.slice(1);

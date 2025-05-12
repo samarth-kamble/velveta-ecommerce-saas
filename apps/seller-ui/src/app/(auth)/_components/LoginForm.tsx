@@ -37,7 +37,7 @@ export function LoginForm({
     },
     onSuccess: (data) => {
       setServerError(null);
-      router.push("/");
+      router.push("/dashboard");
     },
     onError: (error: AxiosError) => {
       const errorMessage =

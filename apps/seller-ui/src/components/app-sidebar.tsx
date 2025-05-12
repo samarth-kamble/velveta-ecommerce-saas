@@ -2,14 +2,15 @@
 
 import * as React from "react";
 import {
-  Bot,
-  ClockFading,
-  Command,
-  Dog,
   LayoutDashboard,
+  Package,
+  ShoppingCart,
+  BarChart3,
   Settings,
-  Sprout,
+  MessageCircle,
+  Command,
 } from "lucide-react";
+import Link from "next/link";
 import { usePathname } from "next/navigation";
 
 import { NavUser } from "@/components/nav-user";
@@ -22,90 +23,124 @@ import {
   SidebarMenuButton,
   SidebarMenuItem,
 } from "@/components/ui/sidebar";
-import Link from "next/link";
+import { cn } from "@/lib/utils";
 
-export const data = {
-  navMain: [
-    {
-      title: "Dashboard",
-      url: "/dashboard",
-      icon: LayoutDashboard,
-    },
-    {
-      title: "Chatbot",
-      url: "/dashboard/",
-      icon: Bot,
-    },
-    {
-      title: "Seasonal Advisor",
-      url: "/dashboard/",
-      icon: ClockFading,
-    },
-    {
-      title: "Plant Disease Diagnosis",
-      url: "/dashboard/",
-      icon: Sprout,
-    },
-    {
-      title: "Cattle Disease Diagnosis",
-      url: "/dashboard/",
-      icon: Dog,
-    },
-    {
-      title: "Settings",
-      url: "/dashboard/",
-      icon: Settings,
-    },
-  ],
-};
+export const menuGroups = [
+  {
+    heading: "Overview",
+    items: [
+      {
+        title: "Dashboard",
+        url: "/dashboard",
+        icon: LayoutDashboard,
+      },
+    ],
+  },
+  {
+    heading: "Store Management",
+    items: [
+      {
+        title: "Orders",
+        url: "/dashboard/orders",
+        icon: ShoppingCart,
+      },
+      {
+        title: "Products",
+        url: "/dashboard/products",
+        icon: Package,
+      },
+      {
+        title: "Inventory",
+        url: "/dashboard/inventory",
+        icon: BarChart3,
+      },
+    ],
+  },
+  {
+    heading: "Support & Settings",
+    items: [
+      {
+        title: "Messages",
+        url: "/dashboard/messages",
+        icon: MessageCircle,
+      },
+      {
+        title: "Settings",
+        url: "/dashboard/settings",
+        icon: Settings,
+      },
+    ],
+  },
+];
 
 export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
   const pathname = usePathname();
 
   return (
-    <Sidebar variant="inset" className="w-64" {...props}>
+    <Sidebar
+      variant="inset"
+      className="w-64 border-r dark:border-gray-800 bg-white dark:bg-gray-900"
+      {...props}
+    >
+      {/* Header */}
       <SidebarHeader>
         <SidebarMenu>
           <SidebarMenuItem>
             <SidebarMenuButton size="lg" asChild>
-              <a href="/">
-                <div className="flex aspect-square size-10 items-center justify-center rounded-lg bg-rose-500 text-white">
+              <Link href="/" className="flex items-center gap-3 p-3">
+                <div className="flex size-10 items-center justify-center rounded-xl bg-gradient-to-tr from-rose-500 to-pink-400 text-white">
                   <Command className="size-6" />
                 </div>
-                <div className="grid flex-1 text-left text-base leading-tight">
-                  <span className="truncate font-semibold text-lg">
-                    Velveta
-                  </span>
-                  <span className="truncate text-sm text-gray-400">Seller</span>
+                <div className="text-left leading-tight">
+                  <h1 className="text-xl font-bold tracking-wide">Velveta</h1>
+                  <p className="text-sm text-gray-500 dark:text-gray-400">
+                    Seller Panel
+                  </p>
                 </div>
-              </a>
+              </Link>
             </SidebarMenuButton>
           </SidebarMenuItem>
         </SidebarMenu>
       </SidebarHeader>
 
-      {/* Main Navigation */}
+      {/* Navigation */}
       <SidebarContent>
-        <SidebarMenu>
-          {data.navMain.map((item) => (
-            <SidebarMenuItem key={item.title}>
-              <SidebarMenuButton asChild>
-                <Link
-                  href={item.url}
-                  className={`mt-2 flex items-center gap-3 p-5 rounded-lg text-lg transition-colors hover:bg-gray-200 dark:hover:bg-gray-800 text-black ${
-                    pathname === item.url ? "bg-gray-300 dark:bg-gray-700" : ""
-                  }`}
-                >
-                  <item.icon className="size-6" />
-                  <span>{item.title}</span>
-                </Link>
-              </SidebarMenuButton>
-            </SidebarMenuItem>
-          ))}
-        </SidebarMenu>
+        {menuGroups.map((group) => (
+          <SidebarMenu key={group.heading} className="mt-6">
+            <p className="px-5 pb-2 text-sm font-semibold text-gray-500 dark:text-gray-400 tracking-wide uppercase">
+              {group.heading}
+            </p>
+            {group.items.map((item) => (
+              <SidebarMenuItem key={item.title}>
+                <SidebarMenuButton asChild>
+                  <Link
+                    href={item.url}
+                    className={cn(
+                      "group flex items-center gap-3 rounded-xl px-4 py-3 text-base font-medium transition-all",
+                      pathname === item.url
+                        ? "bg-rose-100 text-rose-600 dark:bg-rose-900 dark:text-white"
+                        : "text-gray-700 hover:bg-gray-100 dark:text-gray-300 dark:hover:bg-gray-800"
+                    )}
+                  >
+                    <item.icon
+                      className={cn(
+                        "size-7 transition-transform",
+                        pathname === item.url
+                          ? "text-rose-500"
+                          : "group-hover:scale-110"
+                      )}
+                    />
+                    <span className="text-lg font-medium">{item.title}</span>
+                  </Link>
+                </SidebarMenuButton>
+              </SidebarMenuItem>
+            ))}
+          </SidebarMenu>
+        ))}
       </SidebarContent>
 
-      <SidebarFooter>
+      {/* Footer */}
+      <SidebarFooter className="border-t dark:border-gray-800 p-4">
         <NavUser />
       </SidebarFooter>
     </Sidebar>

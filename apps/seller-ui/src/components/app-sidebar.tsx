@@ -153,8 +153,8 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
       {/* Navigation */}
       <SidebarContent>
         {menuGroups.map((group) => (
-          <SidebarMenu key={group.heading} className="mt-6">
-            <p className="px-5 pb-2 text-sm font-semibold text-gray-500 dark:text-gray-400 tracking-wide uppercase">
+          <SidebarMenu key={group.heading} className="mt-4">
+            <p className="px-5 pb-1 text-sm font-semibold text-gray-500 dark:text-gray-400 tracking-wide uppercase">
               {group.heading}
             </p>
             {group.items.map((item) => (
@@ -171,13 +171,13 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
                   >
                     <item.icon
                       className={cn(
-                        "size-7 transition-transform",
+                        "size-4 transition-transform",
                         pathname === item.url
                           ? "text-rose-500"
                           : "group-hover:scale-110"
                       )}
                     />
-                    <span className="text-lg font-medium">{item.title}</span>
+                    <span className="text-md font-medium">{item.title}</span>
                   </Link>
                 </SidebarMenuButton>
               </SidebarMenuItem>

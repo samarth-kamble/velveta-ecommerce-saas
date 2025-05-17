@@ -1,4 +1,4 @@
-import Providers from "@/components/providers/Providers";
+import Providers from "../components/providers/Providers";
 import "./globals.css";
 import { Poppins, Roboto } from "next/font/google";
 import { Toaster } from "sonner";

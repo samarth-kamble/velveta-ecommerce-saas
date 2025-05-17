@@ -22,10 +22,7 @@ import {
 
 // Helper function to get breadcrumb title from nav data
 const getBreadcrumbTitle = (path: string) => {
-  // Flatten all grouped items into a single array
   const allItems = menuGroups.flatMap((group) => group.items);
-
-  // Try to find the matching path
   const foundItem = allItems.find((item) => item.url === path);
 
   return foundItem
@@ -37,19 +34,29 @@ const DashboardLayout = ({ children }: { children: ReactNode }) => {
   const pathname = usePathname();
   const pathSegments = pathname.split("/").filter((segment) => segment);
 
+  const currentPath = `/${pathSegments.join("/")}`;
+  const pageTitle = getBreadcrumbTitle(currentPath);
+
   return (
     <SidebarProvider>
       <AppSidebar />
       <SidebarInset>
-        {/* Header Section */}
-        <header className="flex h-16 shrink-0 items-center gap-2">
-          <div className="flex items-center gap-2 px-4">
+        <div className="pt-4">
+          {/* Title and Trigger */}
+          <div className="flex items-center gap-3 px-4">
             <SidebarTrigger className="-ml-1" />
-            <Separator orientation="vertical" className="mr-2 h-4" />
+            <Separator orientation="vertical" className="h-4" />
+            <h1 className="text-2xl font-semibold tracking-tight">
+              {pageTitle}
+            </h1>
+          </div>
+
+          {/* Breadcrumb aligned with title */}
+          <div className="ml-12 px-4">
             <Breadcrumb>
               <BreadcrumbList>
                 <BreadcrumbItem>
-                  <BreadcrumbLink href="/dashboard">Dashboard</BreadcrumbLink>
+                  <BreadcrumbLink href="/dashboard">Seller</BreadcrumbLink>
                 </BreadcrumbItem>
                 {pathSegments.map((segment, index) => {
                   const href = `/${pathSegments.slice(0, index + 1).join("/")}`;
@@ -74,10 +81,10 @@ const DashboardLayout = ({ children }: { children: ReactNode }) => {
               </BreadcrumbList>
             </Breadcrumb>
           </div>
-        </header>
+        </div>
 
-        {/* Main Content */}
-        <div className="flex flex-1 flex-col gap-4 p-4 pt-0">{children}</div>
+        {/* Main content */}
+        <div className="flex flex-1 flex-col gap-4 p-4 pt-2">{children}</div>
       </SidebarInset>
     </SidebarProvider>
   );

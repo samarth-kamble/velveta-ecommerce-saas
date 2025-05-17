@@ -4,6 +4,7 @@ import proxy from "express-http-proxy";
 import morgan from "morgan";
 import cookieParser from "cookie-parser";
 import rateLimit from "express-rate-limit";
+import initializeConfig from "./lib/initializeSiteConfig";
 
 const app = express();
 
@@ -53,10 +54,17 @@ app.get("/api", (req, res) => {
   res.send({ message: "Welcome to api-gateway!" });
 });
 
+app.use("/product", proxy("http://localhost:6002"));
 app.use("/", proxy("http://localhost:6001"));
 
 const port = process.env.PORT || 8080;
 const server = app.listen(port, () => {
   console.log(`Listening at http://localhost:${port}/api`);
+  try {
+    initializeConfig();
+    console.log("Site config initialized");
+  } catch (error) {
+    console.error("Error initializing site config:", error);
+  }
 });
 server.on("error", console.error);

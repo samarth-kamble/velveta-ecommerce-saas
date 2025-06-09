@@ -302,3 +302,28 @@ export const createProduct = async (
     return next(error);
   }
 };
+
+// Product => Get All Products
+export const getShopProducts = async (
+  req: any,
+  res: Response,
+  next: NextFunction
+) => {
+  try {
+    const products = await prisma.products.findMany({
+      where: {
+        shopId: req.seller?.shop?.id,
+      },
+      include: {
+        images: true,
+      },
+    });
+
+    res.status(200).json({
+      success: true,
+      products,
+    });
+  } catch (error) {
+    return next(error);
+  }
+};

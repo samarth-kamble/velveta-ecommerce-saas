@@ -321,54 +321,6 @@ const CreateProductPage = () => {
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-50 to-slate-100 p-4">
       <div className="max-w-7xl mx-auto">
-        {/* Header */}
-        <div className="mb-8">
-          <div className="flex items-center gap-3 mb-2">
-            <div className="p-2 bg-blue-500 rounded-lg">
-              <Plus className="w-6 h-6 text-white" />
-            </div>
-            <div>
-              <h1 className="text-3xl font-bold text-gray-900">
-                Create New Product
-              </h1>
-              <p className="text-gray-600">
-                Add a new product to your inventory
-              </p>
-            </div>
-          </div>
-
-          {/* Progress Indicator */}
-          <div className="flex items-center gap-4 mt-4">
-            {sections.map((section, index) => {
-              const Icon = section.icon;
-              const hasErrors = getFieldCount(section.id) > 0;
-              const isActive = activeSection === section.id;
-
-              return (
-                <div key={section.id} className="flex items-center gap-2">
-                  <div
-                    className={`flex items-center gap-2 px-3 py-2 rounded-lg cursor-pointer transition-all ${
-                      isActive
-                        ? "bg-blue-500 text-white shadow-lg"
-                        : hasErrors
-                        ? "bg-red-100 text-red-700 border border-red-200"
-                        : "bg-white text-gray-600 border border-gray-200 hover:bg-gray-50"
-                    }`}
-                    onClick={() => setActiveSection(section.id)}
-                  >
-                    <Icon className="w-4 h-4" />
-                    <span className="font-medium">{section.label}</span>
-                    {hasErrors && <AlertCircle className="w-4 h-4" />}
-                  </div>
-                  {index < sections.length - 1 && (
-                    <div className="w-8 h-px bg-gray-300" />
-                  )}
-                </div>
-              );
-            })}
-          </div>
-        </div>
-
         <form onSubmit={handleSubmit(onSubmit)} className="space-y-8">
           <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
             {/* Left Side - Images */}

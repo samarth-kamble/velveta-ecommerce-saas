@@ -30,6 +30,7 @@ import {
 } from "@/components/ui/dropdown-menu";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Alert, AlertDescription } from "@/components/ui/alert";
+import { toast } from "sonner";
 import axiosInstance from "@/utils/axiosInstance";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import {
@@ -44,6 +45,7 @@ import {
   TrendingUp,
   AlertTriangle,
   ExternalLink,
+  RotateCcw,
 } from "lucide-react";
 import Image from "next/image";
 import Link from "next/link";
@@ -66,6 +68,8 @@ interface Product {
   stock: number;
   category: string;
   ratings?: number;
+  isDeleted?: boolean;
+  deletedAt?: string;
 }
 
 const fetchProducts = async (): Promise<Product[]> => {
@@ -78,7 +82,10 @@ const AllProductPage = () => {
   const [analyticsData, setAnalyticsData] = useState(null);
   const [showAnalytics, setShowAnalytics] = useState(false);
   const [showDeleteModal, setShowDeleteModal] = useState(false);
+  const [showRestoreModal, setShowRestoreModal] = useState(false);
   const [selectedProduct, setSelectedProduct] = useState<Product | null>(null);
+  const [isDeleting, setIsDeleting] = useState(false);
+  const [isRestoring, setIsRestoring] = useState(false);
 
   const queryClient = useQueryClient();
 
@@ -104,7 +111,7 @@ const AllProductPage = () => {
               src={row.original.images[0]?.url}
               alt={row.original.title || "Product image"}
               fill
-              className="object-cover"
+              className={`object-cover ${row.original.isDeleted ? 'opacity-50' : ''}`}
               sizes="48px"
             />
           </div>
@@ -123,7 +130,9 @@ const AllProductPage = () => {
             <div className="space-y-1">
               <Link
                 href={`${process.env.NEXT_PUBLIC_USER_UI_LINK}/product/${row.original.slug}`}
-                className="font-medium text-gray-900 hover:text-rose-600 transition-colors flex items-center gap-1 group"
+                className={`font-medium hover:text-rose-600 transition-colors flex items-center gap-1 group ${
+                  row.original.isDeleted ? 'text-gray-500 line-through' : 'text-gray-900'
+                }`}
               >
                 {truncateTitle}
                 <ExternalLink
@@ -131,7 +140,14 @@ const AllProductPage = () => {
                   className="opacity-0 group-hover:opacity-100 transition-opacity"
                 />
               </Link>
-              <p className="text-sm text-gray-500">#{row.original.id}</p>
+              <div className="flex items-center gap-2">
+                <p className="text-sm text-gray-500">#{row.original.id}</p>
+                {row.original.isDeleted && (
+                  <Badge variant="destructive" className="text-xs">
+                    Deleted
+                  </Badge>
+                )}
+              </div>
             </div>
           );
         },
@@ -140,7 +156,7 @@ const AllProductPage = () => {
         accessorKey: "sale_price",
         header: "Price",
         cell: ({ row }: any) => (
-          <div className="font-semibold text-gray-900">
+          <div className={`font-semibold ${row.original.isDeleted ? 'text-gray-500' : 'text-gray-900'}`}>
             ${row.original.sale_price?.toFixed(2) || "0.00"}
           </div>
         ),
@@ -152,28 +168,33 @@ const AllProductPage = () => {
           const stock = row.original.stock || 0;
           const isLowStock = stock < 10;
           const isOutOfStock = stock === 0;
+          const isDeleted = row.original.isDeleted;
 
           return (
             <div className="flex items-center gap-2">
               <Badge
                 variant={
-                  isOutOfStock
+                  isDeleted
+                    ? "secondary"
+                    : isOutOfStock
                     ? "destructive"
                     : isLowStock
                     ? "outline"
                     : "secondary"
                 }
                 className={
-                  isOutOfStock
+                  isDeleted
+                    ? "bg-gray-100 text-gray-500 border-gray-200"
+                    : isOutOfStock
                     ? "bg-red-100 text-red-800 border-red-200"
                     : isLowStock
                     ? "bg-yellow-100 text-yellow-800 border-yellow-200"
                     : "bg-green-100 text-green-800 border-green-200"
                 }
               >
-                {isOutOfStock ? "Out of Stock" : `${stock} left`}
+                {isDeleted ? "Deleted" : isOutOfStock ? "Out of Stock" : `${stock} left`}
               </Badge>
-              {isLowStock && !isOutOfStock && (
+              {isLowStock && !isOutOfStock && !isDeleted && (
                 <AlertTriangle size={16} className="text-yellow-500" />
               )}
             </div>
@@ -186,7 +207,11 @@ const AllProductPage = () => {
         cell: ({ row }: any) => (
           <Badge
             variant="outline"
-            className="bg-rose-50 text-rose-700 border-rose-200"
+            className={`border-rose-200 ${
+              row.original.isDeleted 
+                ? 'bg-gray-50 text-gray-500 border-gray-200' 
+                : 'bg-rose-50 text-rose-700'
+            }`}
           >
             {row.original.category || "Uncategorized"}
           </Badge>
@@ -199,8 +224,12 @@ const AllProductPage = () => {
           const rating = row.original.ratings || 0;
           return (
             <div className="flex items-center gap-1">
-              <Star fill="#fbbf24" className="text-yellow-400" size={16} />
-              <span className="font-medium text-gray-700">
+              <Star 
+                fill={row.original.isDeleted ? "#d1d5db" : "#fbbf24"} 
+                className={row.original.isDeleted ? "text-gray-400" : "text-yellow-400"} 
+                size={16} 
+              />
+              <span className={`font-medium ${row.original.isDeleted ? 'text-gray-500' : 'text-gray-700'}`}>
                 {rating.toFixed(1)}
               </span>
             </div>
@@ -220,45 +249,61 @@ const AllProductPage = () => {
             <DropdownMenuContent align="end">
               <DropdownMenuLabel>Actions</DropdownMenuLabel>
               <DropdownMenuSeparator />
-              <DropdownMenuItem asChild>
-                <Link
-                  href={`/product/${row.original.id}`}
-                  className="flex items-center gap-2"
+              
+              {!row.original.isDeleted ? (
+                <>
+                  <DropdownMenuItem asChild>
+                    <Link
+                      href={`/product/${row.original.id}`}
+                      className="flex items-center gap-2"
+                    >
+                      <Eye size={16} />
+                      View Details
+                    </Link>
+                  </DropdownMenuItem>
+                  <DropdownMenuItem asChild>
+                    <Link
+                      href={`/product/edit/${row.original.id}`}
+                      className="flex items-center gap-2"
+                    >
+                      <Pencil size={16} />
+                      Edit Product
+                    </Link>
+                  </DropdownMenuItem>
+                  <DropdownMenuItem
+                    onClick={() => {
+                      setSelectedProduct(row.original);
+                      setShowAnalytics(true);
+                    }}
+                    className="flex items-center gap-2"
+                  >
+                    <BarChart size={16} />
+                    View Analytics
+                  </DropdownMenuItem>
+                  <DropdownMenuSeparator />
+                  <DropdownMenuItem
+                    onClick={() => {
+                      setSelectedProduct(row.original);
+                      setShowDeleteModal(true);
+                    }}
+                    className="flex items-center gap-2 text-red-600 focus:text-red-600"
+                  >
+                    <Trash size={16} />
+                    Delete Product
+                  </DropdownMenuItem>
+                </>
+              ) : (
+                <DropdownMenuItem
+                  onClick={() => {
+                    setSelectedProduct(row.original);
+                    setShowRestoreModal(true);
+                  }}
+                  className="flex items-center gap-2 text-green-600 focus:text-green-600"
                 >
-                  <Eye size={16} />
-                  View Details
-                </Link>
-              </DropdownMenuItem>
-              <DropdownMenuItem asChild>
-                <Link
-                  href={`/product/edit/${row.original.id}`}
-                  className="flex items-center gap-2"
-                >
-                  <Pencil size={16} />
-                  Edit Product
-                </Link>
-              </DropdownMenuItem>
-              <DropdownMenuItem
-                onClick={() => {
-                  setSelectedProduct(row.original);
-                  setShowAnalytics(true);
-                }}
-                className="flex items-center gap-2"
-              >
-                <BarChart size={16} />
-                View Analytics
-              </DropdownMenuItem>
-              <DropdownMenuSeparator />
-              <DropdownMenuItem
-                onClick={() => {
-                  setSelectedProduct(row.original);
-                  setShowDeleteModal(true);
-                }}
-                className="flex items-center gap-2 text-red-600 focus:text-red-600"
-              >
-                <Trash size={16} />
-                Delete Product
-              </DropdownMenuItem>
+                  <RotateCcw size={16} />
+                  Restore Product
+                </DropdownMenuItem>
+              )}
             </DropdownMenuContent>
           </DropdownMenu>
         ),
@@ -288,19 +333,74 @@ const AllProductPage = () => {
   const handleDeleteProduct = async () => {
     if (!selectedProduct) return;
 
+    setIsDeleting(true);
     try {
-      // Add your delete API call here
-      // await axiosInstance.delete(`/products/api/delete-product/${selectedProduct.id}`);
-
+      console.log("Attempting to delete product:", selectedProduct.id);
+      const response = await axiosInstance.delete(`/product/api/delete-product/${selectedProduct.id}`);
+      console.log("Delete response:", response.data);
+      
       // Invalidate and refetch
       queryClient.invalidateQueries({ queryKey: ["shop-products"] });
 
+      toast.success(`Product "${selectedProduct.title}" deleted successfully.`);
+
       setShowDeleteModal(false);
       setSelectedProduct(null);
-    } catch (error) {
+    } catch (error: any) {
       console.error("Error deleting product:", error);
+      console.error("Error response:", error.response?.data);
+      
+      let errorMessage = "Failed to delete product. Please try again.";
+      
+      if (error.response?.status === 401 || error.response?.status === 403) {
+        errorMessage = "You don't have permission to delete this product. Please make sure you're logged in and this is your product.";
+      } else if (error.response?.data?.message) {
+        errorMessage = error.response.data.message;
+      }
+
+      toast.error("Error: " + errorMessage);
+    } finally {
+      setIsDeleting(false);
     }
   };
+
+  const handleRestoreProduct = async () => {
+    if (!selectedProduct) return;
+
+    setIsRestoring(true);
+    try {
+      console.log("Attempting to restore product:", selectedProduct.id);
+      const response = await axiosInstance.put(`/product/api/restore-product/${selectedProduct.id}`);
+      console.log("Restore response:", response.data);
+      
+      // Invalidate and refetch
+      queryClient.invalidateQueries({ queryKey: ["shop-products"] });
+
+      toast.success("Product restored successfully!", )
+
+      setShowRestoreModal(false);
+      setSelectedProduct(null);
+    } catch (error: any) {
+      console.error("Error restoring product:", error);
+      console.error("Error response:", error.response?.data);
+      
+      let errorMessage = "Failed to restore product. Please try again.";
+      
+      if (error.response?.status === 401 || error.response?.status === 403) {
+        errorMessage = "You don't have permission to restore this product. Please make sure you're logged in and this is your product.";
+      } else if (error.response?.data?.message) {
+        errorMessage = error.response.data.message;
+      }
+
+      toast.error("Error: " + errorMessage);
+    } finally {
+      setIsRestoring(false);
+    }
+  };
+
+  // Calculate stats including deleted products
+  const activeProducts = products.filter(p => !p.isDeleted);
+  const deletedProducts = products.filter(p => p.isDeleted);
 
   // Loading skeleton
   if (isLoading) {
@@ -362,7 +462,7 @@ const AllProductPage = () => {
           <div>
             <h1 className="text-3xl font-bold text-gray-900">Products</h1>
             <p className="text-gray-600 mt-1">
-              Manage your product inventory ({products.length} total)
+              Manage your product inventory ({activeProducts.length} active, {deletedProducts.length} deleted)
             </p>
           </div>
           <Button
@@ -376,75 +476,103 @@ const AllProductPage = () => {
 
         {/* Stats Cards */}
         <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
-          <Card>
-            <CardContent className="p-4">
+          <Card className="flex-1 bg-gradient-to-br from-blue-500/10 to-blue-600/5 backdrop-blur-sm border border-blue-200/20 shadow-xl hover:shadow-2xl transition-all duration-300 hover:scale-105">
+            <CardContent className="p-6">
               <div className="flex items-center justify-between">
-                <div>
-                  <p className="text-sm font-medium text-gray-600">
-                    Total Products
+                <div className="space-y-1">
+                  <p className="text-sm font-medium text-blue-600/80">
+                    Active Products
                   </p>
-                  <p className="text-2xl font-bold text-gray-900">
-                    {products.length}
+                  <p className="text-3xl font-bold text-blue-700">
+                    {activeProducts.length}
+                  </p>
+                  <p className="text-xs text-blue-500/70">
+                    Currently available
                   </p>
                 </div>
-                <Package className="h-8 w-8 text-rose-600" />
+                <div className="p-3 bg-gradient-to-br from-blue-500 to-blue-600 rounded-xl shadow-lg">
+                  <Package className="h-6 w-6 text-white" />
+                </div>
               </div>
             </CardContent>
           </Card>
 
-          <Card>
-            <CardContent className="p-4">
+          <Card className="flex-1 bg-gradient-to-br from-yellow-500/10 to-yellow-600/5 backdrop-blur-sm border border-yellow-200/20 shadow-xl hover:shadow-2xl transition-all duration-300 hover:scale-105">
+            <CardContent className="p-6">
               <div className="flex items-center justify-between">
-                <div>
-                  <p className="text-sm font-medium text-gray-600">Low Stock</p>
-                  <p className="text-2xl font-bold text-yellow-600">
-                    {products.filter((p) => p.stock < 10 && p.stock > 0).length}
+                <div className="space-y-1">
+                  <p className="text-sm font-medium text-yellow-600/80">
+                    Low Stock
                   </p>
+                  <p className="text-3xl font-bold text-yellow-700">
+                    {activeProducts.filter((p) => p.stock < 10 && p.stock > 0).length}
+                  </p>
+                  <p className="text-xs text-yellow-500/70">Needs attention</p>
                 </div>
-                <AlertTriangle className="h-8 w-8 text-yellow-600" />
+                <div className="p-3 bg-gradient-to-br from-yellow-500 to-yellow-600 rounded-xl shadow-lg">
+                  <AlertTriangle className="h-6 w-6 text-white" />
+                </div>
               </div>
             </CardContent>
           </Card>
 
-          <Card>
-            <CardContent className="p-4">
+          <Card className="flex-1 bg-gradient-to-br from-red-500/10 to-red-600/5 backdrop-blur-sm border border-red-200/20 shadow-xl hover:shadow-2xl transition-all duration-300 hover:scale-105">
+            <CardContent className="p-6">
               <div className="flex items-center justify-between">
-                <div>
-                  <p className="text-sm font-medium text-gray-600">
+                <div className="space-y-1">
+                  <p className="text-sm font-medium text-red-600/80">
                     Out of Stock
                   </p>
-                  <p className="text-2xl font-bold text-red-600">
-                    {products.filter((p) => p.stock === 0).length}
+                  <p className="text-3xl font-bold text-red-700">
+                    {activeProducts.filter((p) => p.stock === 0).length}
                   </p>
+                  <p className="text-xs text-red-500/70">Requires restocking</p>
                 </div>
-                <Trash className="h-8 w-8 text-red-600" />
+                <div className="p-3 bg-gradient-to-br from-red-500 to-red-600 rounded-xl shadow-lg">
+                  <Trash className="h-6 w-6 text-white" />
+                </div>
               </div>
             </CardContent>
           </Card>
 
-          <Card>
-            <CardContent className="p-4">
+          <Card className="flex-1 bg-gradient-to-br from-emerald-500/10 to-emerald-600/5 backdrop-blur-sm border border-emerald-200/20 shadow-xl hover:shadow-2xl transition-all duration-300 hover:scale-105">
+            <CardContent className="p-6">
               <div className="flex items-center justify-between">
-                <div>
-                  <p className="text-sm font-medium text-gray-600">
+                <div className="space-y-1">
+                  <p className="text-sm font-medium text-emerald-600/80">
                     Avg Rating
                   </p>
-                  <p className="text-2xl font-bold text-yellow-600">
-                    {products.length > 0
+                  <p className="text-3xl font-bold text-emerald-700">
+                    {activeProducts.length > 0
                       ? (
-                          products.reduce(
+                          activeProducts.reduce(
                             (acc, p) => acc + (p.ratings || 0),
                             0
-                          ) / products.length
+                          ) / activeProducts.length
                         ).toFixed(1)
                       : "0.0"}
                   </p>
+                  <p className="text-xs text-emerald-500/70">
+                    Customer satisfaction
+                  </p>
                 </div>
-                <Star className="h-8 w-8 text-yellow-600" />
+                <div className="p-3 bg-gradient-to-br from-emerald-500 to-emerald-600 rounded-xl shadow-lg">
+                  <Star className="h-6 w-6 text-white" />
+                </div>
               </div>
             </CardContent>
           </Card>
         </div>
+
+        {/* Deleted Products Alert */}
+        {deletedProducts.length > 0 && (
+          <Alert>
+            <AlertTriangle className="h-4 w-4" />
+            <AlertDescription>
+              You have {deletedProducts.length} deleted product(s) that will be permanently removed after 24 hours.
+            </AlertDescription>
+          </Alert>
+        )}
 
         {/* Table Card */}
         <Card>
@@ -485,7 +613,7 @@ const AllProductPage = () => {
                       <TableRow
                         key={row.id}
                         data-state={row.getIsSelected() && "selected"}
-                        className="hover:bg-gray-50"
+                        className={`hover:bg-gray-50 ${row.original.isDeleted ? 'bg-gray-50/50' : ''}`}
                       >
                         {row.getVisibleCells().map((cell) => (
                           <TableCell key={cell.id}>
@@ -555,18 +683,53 @@ const AllProductPage = () => {
               <DialogTitle>Delete Product</DialogTitle>
               <DialogDescription>
                 Are you sure you want to delete "{selectedProduct?.title}"? This
-                action cannot be undone.
+                product will be soft deleted and can be restored within 24 hours.
+                After 24 hours, it will be permanently deleted.
               </DialogDescription>
             </DialogHeader>
             <DialogFooter>
               <Button
                 variant="outline"
                 onClick={() => setShowDeleteModal(false)}
+                disabled={isDeleting}
               >
                 Cancel
               </Button>
-              <Button variant="destructive" onClick={handleDeleteProduct}>
-                Delete
+              <Button 
+                variant="destructive" 
+                onClick={handleDeleteProduct}
+                disabled={isDeleting}
+              >
+                {isDeleting ? "Deleting..." : "Delete"}
+              </Button>
+            </DialogFooter>
+          </DialogContent>
+        </Dialog>
+
+        {/* Restore Confirmation Dialog */}
+        <Dialog open={showRestoreModal} onOpenChange={setShowRestoreModal}>
+          <DialogContent>
+            <DialogHeader>
+              <DialogTitle>Restore Product</DialogTitle>
+              <DialogDescription>
+                Are you sure you want to restore "{selectedProduct?.title}"? This
+                will make the product active again and available for sale.
+              </DialogDescription>
+            </DialogHeader>
+            <DialogFooter>
+              <Button
+                variant="outline"
+                onClick={() => setShowRestoreModal(false)}
+                disabled={isRestoring}
+              >
+                Cancel
+              </Button>
+              <Button 
+                onClick={handleRestoreProduct}
+                disabled={isRestoring}
+                className="bg-green-600 hover:bg-green-700"
+              >
+                {isRestoring ? "Restoring..." : "Restore"}
               </Button>
             </DialogFooter>
           </DialogContent>

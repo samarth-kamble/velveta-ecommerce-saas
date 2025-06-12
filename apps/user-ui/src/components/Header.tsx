@@ -4,7 +4,7 @@ import Link from "next/link";
 import { HeartIcon, Search, ShoppingBag, User, X } from "lucide-react";
 import { useState } from "react";
 import HeaderBottom from "./HeaderBottom";
-import useUser from "@/hooks/useUser";
+import useUser from "@/src/hooks/useUser";
 
 const Header = () => {
   const { user, isLoading } = useUser();

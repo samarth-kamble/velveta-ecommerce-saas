@@ -2,7 +2,7 @@ import { GalleryVerticalEnd } from "lucide-react";
 import { LoginForm } from "../_components/LoginForm";
 import Link from "next/link";
 import Image from "next/image";
-import LoginImage from "@/assets/Login.jpg";
+import LoginImage from "@/src/assets/Login.jpg";
 
 const LoginPage = () => {
   return (

@@ -1,7 +1,7 @@
 import { GalleryVerticalEnd } from "lucide-react";
 import Link from "next/link";
 import Image from "next/image";
-import ForgotPassword from "@/assets/ForgotPassword.jpg";
+import ForgotPassword from "@/src/assets/ForgotPassword.jpg";
 import { ForgotPasswordForm } from "../_components/ForgotPasswordForm";
 
 const ForgotPasswordPage = () => {

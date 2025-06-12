@@ -1,7 +1,7 @@
 import { GalleryVerticalEnd } from "lucide-react";
 import Link from "next/link";
 import Image from "next/image";
-import SignupImage from "@/assets/sign-up.jpg";
+import SignupImage from "@/src/assets/sign-up.jpg";
 import { SignUpForm } from "../_components/SignupForm";
 
 const SignupPage = () => {

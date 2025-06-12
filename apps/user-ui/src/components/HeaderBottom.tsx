@@ -18,8 +18,8 @@ import {
   SheetHeader,
   SheetTitle,
   SheetTrigger,
-} from "@/components/ui/sheet";
-import useUser from "@/hooks/useUser";
+} from "@/src/components/ui/sheet";
+import useUser from "@/src/hooks/useUser";
 
 const HeaderBottom = () => {
   const { user } = useUser();

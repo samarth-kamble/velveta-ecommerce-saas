@@ -287,6 +287,8 @@ export const createProduct = async (
             .map((img: any) => ({
               file_id: img.fileId,
               url: img.file_url,
+              // ✅ Don't set userId or shopId for product images
+              // This avoids the unique constraint conflict
             })),
         },
       },
